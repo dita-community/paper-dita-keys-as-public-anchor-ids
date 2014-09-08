@@ -1,0 +1,4 @@
+[submodule "gh-pages"]
+	path = gh-pages
+	url = https://github.com/dita-community/paper-dita-keys-as-public-anchor-ids.git
+	branch = gh-pages
