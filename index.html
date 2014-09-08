@@ -1,52 +1,330 @@
-<!DOCTYPE html>
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="DITA Map Design: Using Keys to Produce Reliable Anchor IDs for Deliverables"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="topic_f1y_j52_jp"/>
+<link rel="stylesheet" type="text/css" href="commonltr.css"/>
+<title>DITA Map Design: Using Keys to Produce Reliable Anchor IDs for Deliverables</title>
+</head>
+<body id="topic_f1y_j52_jp">
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Paper-dita-keys-as-public-anchor-ids : A paper describing best practices for using keys in order to best support the generation of reliable public anchor IDs in online deliverables">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+  <h1 class="title topictitle1">DITA Map Design: Using Keys to Produce Reliable Anchor IDs for Deliverables</h1>
 
-    <title>Paper-dita-keys-as-public-anchor-ids</title>
-  </head>
+  <div class="body">
+    <p class="p">When you generate online deliverables from DITA content the users of those deliverables may need to create links to things in your deliverables. For example, they may want to create links to the HTML page for a specific topic or link to a named destination within a PDF that is served online. They will do this by creating links to specific HTML pages, @id values within HTML pages, PDF named destinations, or whatever form of "anchor" the online deliverable provides. </p>
 
-  <body>
+    <p class="p">When they do this, they have a reasonable expectation that their links will continue to work as the deliverables are revised and republished.</p>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/dita-community/paper-dita-keys-as-public-anchor-ids">View on GitHub</a>
+    <p class="p">Thus users of DITA-based deliverables need to have a reliable set of "public" anchor IDs that they can link to: HTML files, @id values on HTML elements, PDF named destinations, help topic identifiers, etc.</p>
 
-          <h1 id="project_title">Paper-dita-keys-as-public-anchor-ids</h1>
-          <h2 id="project_tagline">A paper describing best practices for using keys in order to best support the generation of reliable public anchor IDs in online deliverables</h2>
+    <p class="p">Unfortunately, producing these public anchor IDs can be a challenge.</p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/dita-community/paper-dita-keys-as-public-anchor-ids/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/dita-community/paper-dita-keys-as-public-anchor-ids/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
+    <p class="p">This paper describes a practice for using DITA keys that allows for the reliable generation of public anchor IDs.</p>
+
+  </div>
+
+  <div class="topic nested1" id="topic_dv5_1y2_jp">
+    <h2 class="title topictitle2">XML IDs and Topic Filenames Won't Work</h2>
+
+    <div class="body">
+      <p class="p">In traditional XML practice, where one publication is represented by exactly one XML document, XML IDs were sufficient to generate reliable and persistent anchors in any deliverable, because XML IDs must be unique within the scope of the XML document that contains them. This is a simplification but a powerful simplification because it avoids lots of complexity.</p>
+
+      <p class="p">Unfortunately, this simplification cannot be used with DITA when using DITA in the normal way of maps and topics, especially when there is re-use.</p>
+
+      <p class="p">There are a number of reasons a simple mapping of source filenames and IDs to deliverable anchor IDs will not work:</p>
+
+      <div class="p">
+        <ul class="ul" id="topic_dv5_1y2_jp__ul_whc_wv2_jp">
+          <li class="li">There is no necessary relationship between the DITA source filenames or IDs and any deliverable artifact (HTML file, PDF named destination, etc.). In the context of a component content management system topics may not be files at all and therefore may not have any kind of useful identifier other than an object ID, which may not be suitable for use as a public ID (for example, because it's an opaque number or a long GUID or whatever).</li>
+
+          <li class="li">Purely generated IDs are arbitrary and not predictable. They may be truly arbitrary or may reflect details of the XML files or file organization, which can change from release to release. So generating IDs for anchors in the output, as is done by the Open Toolkit's PDF2 transform as of OT 1.8, is not useful.</li>
+
+          <li class="li">Topic IDs in DITA need not be unique outside the scope of the XML document that contains the topic. If topic IDs are not unique at least within the scope of a single publication, they obviously can't be used for public anchor IDs.</li>
+
+          <li class="li">Element IDs for non-topic elements within topics are only unique within the scope of their direct-parent topic. If you have nested topics within a single XML document you could easily have multiple elements with the ID "step-01" or whatever. (However, within the same XML document, any topic ID/element ID pair will be unique, because topic IDs are true XML IDs and thus must be unique within the same XML document.</li>
+
+          <li class="li">Element IDs for elements within maps are only unique within the XML document that contains the element, so maps combined into a map tree could use the same IDs for elements in those maps, meaning you could have topicrefs with the ID "installation" in two different maps, both of which are used from some parent map.</li>
+
+        </ul>
+
+      </div>
+
+      <p class="p">This all means that element IDs (@id values) and topic filenames cannot be relied on as the basis for producing public anchor IDs.</p>
+
+      <p class="p">While one can imagine imposing policies and processing on your DITA source to make it be the case that topic IDs are globally unique or whatever, it's ultimately a futile effort, because you may need to integrate new content in the future where the IDs are not controlled, meaning you either have to modify that content to rationalize the IDs or modify your existing content to rationalize the IDs, neither of which are attractive options. In any case, such effort is unnecessary because DITA, starting with version 1.2, provides facilities that can solve the public anchor ID problem without unnecessary effort.</p>
+
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>
-<a name="paper-dita-keys-as-public-anchor-ids" class="anchor" href="#paper-dita-keys-as-public-anchor-ids"><span class="octicon octicon-link"></span></a>paper-dita-keys-as-public-anchor-ids</h1>
+  </div>
 
-<p>A paper describing best practices for using keys in order to best support the generation of reliable public anchor IDs in online deliverables</p>
-      </section>
+  <div class="topic nested1" id="topic_bq3_qz2_jp">
+    <h2 class="title topictitle2">Using Keys to Enable Public Anchor IDs</h2>
+
+    <div class="body">
+      <p class="p">The DITA key facility, introduced in DITA 1.2, provides a way to associate arbitrary names (keys) with topics, maps, and non-DITA resources so that you can refer to things by key rather than by direct URI reference.</p>
+
+      <p class="p">In particular, you can refer to topics (and, by extension, elements within topics) by key.</p>
+
+      <p class="p">Keys are a form of <dfn class="term">indirect address</dfn>, meaning that references are to keys and then the keys are bound to their ultimate references. Indirection is essential for authoring because it protects the documents making the references from changes in the details of where the ultimate targets are.</p>
+
+      <p class="p">For example, if you create a cross reference to a topic by direct URL reference using the @href attribute of &lt;xref&gt;, then if that topic is moved to a different location or it's source file is renamed, your link breaks. Likewise, if you use this topic in a different map you must also use the topic you've linked to or the link will be broken in the result.</p>
+
+      <p class="p">Keys are defined in maps, which means that two different maps can bind the same key name to different resources. This is essential for re-use because it allows a topic to be used in the context of different maps and have a link from that topic resolve to different targets in the context of different maps. For example, you might have a common topic applicable to multiple products that needs to link to product-specific installation instructions. If you have different maps you can have the same key (e.g. "installation") bound to different product-specific topics.</p>
+
+      <p class="p">In DITA 1.2 key names are global to the root map they're defined within.</p>
+
+      <p class="p">This means that keys <em class="ph i">do</em> represent a reliable set of globally-unique names within the scope of a given publication (assuming that one root map produces one deliverable, which is the normal case).</p>
+
+      <p class="p">In addition, keys are entirely under the control of map authors, so they can be as persistent and meaningful as desired. Beyond that, one key can refer to another key, which means you can use keys as aliases for other keys, allowing you to maintain old IDs that aren't directly associated with topics but that somebody might still have links to.</p>
+
+      <p class="p">However, it's not quite as simple as associating a key with every topic.</p>
+
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Paper-dita-keys-as-public-anchor-ids maintained by <a href="https://github.com/dita-community">dita-community</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
+    <div class="topic nested2" id="topic_m2g_zbf_jp">
+      <h3 class="title topictitle3">Resource and Navigation Topicrefs</h3>
+
+      <div class="body">
+        <p class="p">Starting with DITA 1.2, DITA defines two kinds of topicrefs: normal and "resource only".</p>
+
+        <p class="p">Resource-only topicrefs are topicrefs that simply establish a dependency on a thing (a topic, an image, etc.) but do not define where that thing might be used in the publication's navigation structure. This "processing role" is defined by the @processing-role attribute on topicrefs. A value of "resource-only" indicates a resource-only topicref. A value of "normal" indicates a normal topicref. The &lt;keydef&gt; element is a specialization of &lt;topicref&gt; that sets the default value of @processing-role to "resource-only".</p>
+
+        <p class="p">When used outside of relationship tables, normal-role topicrefs define the navigation structure of the publication, meaning that whatever they point to is expected to be reflected in the resulting deliverable. E.g., the navigation topicrefs define the "table of contents" for the publication. I refer to these topicrefs as "navigation" topicrefs, to distinguish them from both resource-only topicrefs and normal-role topicrefs used in relationship tables (which establish links among topics but do not define a ToC-style navigation structure).</p>
+
+        <p class="p">This distinction between resource-only topicrefs and navigation topicrefs is very important.</p>
+
+        <p class="p">Resource-only topicrefs establish a dependency from the map to topics, including topics that may never be used directly in the output but only serve as a source of elements to be used by reference via conref links.</p>
+
+        <p class="p">Navigation topicrefs represent unique uses of topics. When a topic is used multiple times within a map, each topicref that references that topic establishes a different use of that topic, at a unique place within the publication's navigation structure. This means that by addressing the topicref to a topic you can address a specific use of the topic.</p>
+
+        <p class="p">This ability to address specific uses becomes important when you have cross references from one topic to another topic, where the target topic is used multiple times in the map. In that case, which use of the topic do you want the link to go to? Without a way to address specific uses there's no DITA-defined way to say.</p>
+
+      </div>
+
     </div>
 
-    
+    <div class="topic nested2" id="topic_kf4_n2f_jp">
+      <h3 class="title topictitle3">Always Use Keys</h3>
 
-  </body>
+      <div class="body">
+        <p class="p">Just to make this whole discussion clear: You should use keys for all references: conrefs, xrefs, topicrefs from navigation topicrefs, references to images, references to external non-DITA resources, everything.</p>
+
+        <p class="p">This discussion presumes that you're doing this. The whole point of this discussion is to describe <em class="ph i">how</em> you should be doing it.</p>
+
+      </div>
+
+    </div>
+
+    <div class="topic nested2" id="topic_sxg_h2f_jp">
+      <h3 class="title topictitle3">Resource Only and Navigation Keys</h3>
+
+      <div class="body">
+        <p class="p">You can associate keys with both resource-only and navigation topicrefs.</p>
+
+        <p class="p">However, there are important differences between resource-only keys and navigation keys and those differences have important implications for public anchor IDs.</p>
+
+        <p class="p">Resource-only keys make is possible to make key references to topics for any purpose, but in particular, for content reference. Thus, any topic that might be the target of a content reference link must have a resource-only key defined for it. As this could be any topic, it follows that as a matter of practice you should define resource-only keys for every topic used from a map.</p>
+
+        <p class="p">However, these resource-only keys are not useful as the base for public anchor IDs because they are not bound to any particular navigation point in the publication, by definition. There is also no guarantee that a given topic with a resource-only key will even be directly reflected in the result—it might only ever be used for conref.</p>
+
+        <p class="p">The only keys that can be reliably used as the base for public anchor IDs are keys on navigation topicrefs. Because navigation topicrefs represent unique uses of topics, they are reliable as persistent anchors for specific uses of topics, which is what you need to enable reliable addressing.</p>
+
+        <p class="p">Thus you should also put keys on any navigation topicref that you want to allow users of your deliverable to link to. This might be all navigation topicrefs or it might only be specific ones, depending on what your public linking policy is or the nature of your content or whatever. The simplest practice is to simply put a key on every navigation topicref.</p>
+
+        <p class="p">Because key names are global within a given root map, you cannot use the same key name on a resource-only topicref and a navigation topicref: only one will be effective because of the precedence rules for keys.</p>
+
+        <p class="p">Thus, for each topic you need at least two keys: one for the resource-only topicref to the topic and one for the each navigation topicref to the topic.</p>
+
+        <div class="p">Note that since you already have resource-only keys for each topic, your navigation topicrefs should themselves use keyref to point to the topic to use:<pre class="pre codeblock">&lt;map&gt;
+  &lt;title&gt;My Publication&lt;/title&gt;
+  &lt;topicgroup&gt;&lt;!-- Resource-only topicrefs --&gt;
+    &lt;keydef keys="topic-01"
+            href="topics/topic-00001.dita"
+    /&gt;
+    &lt;keydef keys="topic-02"
+            href="topics/topic-00002.dita"
+    /&gt;
+    ...
+  &lt;/topicgroup&gt;
+  &lt;topicgroup&gt;&lt;!-- Navigation structure --&gt;
+     &lt;topicref keys="chap-01"
+        keyref="topic-01"
+     /&gt;
+     &lt;topicref keys="chap-02"
+        keyref="topic-02"
+     /&gt;
+     ...
+  &lt;/topicgroup&gt;
+&lt;/map&gt;</pre>
+</div>
+
+        <p class="p">Note the key names used in this example. The resource-only keys ("topic-01", "topic-02") are arbitrary identifiers, useful for simply pointing to the topics but not reflective of anything about the topic. By contrast, the navigation keys  ("chap-01", "chap-02") reflect the publication structure and are meaningful to a human looking at the IDs.</p>
+
+        <p class="p">This suggests that you should have a clear and consistent naming convention for these two types of key so that it's clear to authors which key they're referring to so that they choose the correct one for the correct purpose (resource-only key for conrefs, navigation key for cross references).</p>
+
+        <p class="p">This use of resource-only topicrefs with navigation topicrefs that refer to the resource-only keys means that there only needs to be one topicref that points directly to the topic file by direct URI—all other references are by key. This means that if the location of the topic changes you only have to update one place to react to that change. The key-based references will be unaffected.</p>
+
+        <p class="p">It also means that the same navigation structure can be used in different maps with different topics bound to the same resource-only keys, if that makes sense (it doesn't always).</p>
+
+        <p class="p">Note that typical practice is to organize resource-only topicrefs into separate map documents that contain only resource-only key definitions. These maps both make it easier to manage the key definitions, whether manually or through automation, and serve as "catalogs" of topics available for use by authors. You can have different sets of these key-defining maps to organize topics in useful ways, such as all warehouse topics in one set of keys, all topics on a specific subject, or whatever.</p>
+
+      </div>
+
+    </div>
+
+    <div class="topic nested2" id="topic_ixx_khf_jp">
+      <h3 class="title topictitle3">Key Definition Practice Summary</h3>
+
+      <div class="body">
+        <div class="p">To sum up:<ol class="ol" id="topic_ixx_khf_jp__ol_chw_mhf_jp">
+          <li class="li">Define a resource-only topicref for every topic required by the map (<samp class="ph codeph">&lt;keydef keys="topic-01" href="topics/topic-00001.dita"/&gt;</samp>)</li>
+
+          <li class="li">Use key references to the resource-only keys from navigation topicrefs (<samp class="ph codeph">&lt;topicref keys="chap-01" keyref="topic-01" /&gt;</samp>)</li>
+
+          <li class="li">Put keys on navigation topicrefs that you want to allow external linking to.</li>
+
+          </ol>
+</div>
+
+        <p class="p">Given keys on all appropriate navigation topicrefs, you can then reliably generate persistent anchor IDs for each navigation topicref, meaning each use of each topic actually used in the deliverable's content.</p>
+
+      </div>
+
+    </div>
+
+    <div class="topic nested2" id="topic_o5s_1kf_jp">
+      <h3 class="title topictitle3">Scoped Keys</h3>
+
+      <div class="body">
+        <p class="p">DITA 1.3 introduces scoped keys, which allow you to define named key scopes within a map such that references to unqualified keys within a given scope will resolve to the key name defined within that scope, if any.</p>
+
+        <p class="p">This allows you to have things like multi-product books where each product has a different installation topic referenced from a generic topic used in each product's scope. If you make each product a key scope then you can have an unqualified key reference, e.g. "keyref='installation'" and have it resolve to different topics within each product's scope.</p>
+
+        <p class="p">This has some implications for deliverable ID generation. In particular, each key defined within a scope has an implicit qualified value that reflects the full scope hierarchy from the root map to the key.</p>
+
+        <p class="p">For example, if you have the three scopes "prod1", "prod2", and "prod3", defined in your map, and then within each scope define the key "installation", the fully-qualified result is three keys named "prod1.installation", "prod2.installation", and "prod3.installation". </p>
+
+        <p class="p">This means that even though the key definitions and references within the same scope are unqualified as authored, they actually represent the same global key space you have in DITA 1.2.</p>
+
+        <p class="p">This means that scoped keys can be used to reliably generate public anchor IDs by using the fully-qualfied key names.</p>
+
+      </div>
+
+    </div>
+
+    <div class="topic nested2" id="topic_cxw_44f_jp">
+      <h3 class="title topictitle3">Non-Topic Elements</h3>
+
+      <div class="body">
+        <p class="p">You can address non-topic elements using keys by using key references of the form "<em class="ph i">keyname</em>/<em class="ph i">element ID</em>", where <em class="ph i">elementID</em> is the ID of a non-topic element within a topic. </p>
+
+        <div class="p">For example, given this topic:<pre class="pre codeblock">&lt;topic id="topicid"&gt;
+  &lt;title&gt;Topic Three&lt;/title&gt;
+  &lt;body&gt;
+    &lt;p&gt;This is a topic.&lt;/p&gt;
+    &lt;fig id="fig-01"&gt;
+      &lt;title&gt;A figure&lt;/title&gt;
+      ...
+    &lt;/fig&gt;
+  &lt;/body&gt;
+&lt;/topic&gt;</pre>
+</div>
+
+        <div class="p">If you bind the topic to the key "topic-03" then you can address the figure using the key reference "topic-03/fig-01":<pre class="pre codeblock">&lt;p&gt;See &lt;xref keyref="topic-03/fig-01"/&gt; for an illustration.&lt;/p&gt;</pre>
+</div>
+
+        <p class="p">This presents a challenge for the generation of anchor IDs: if you link to something one of your readers may want to link to it to. Thus you really need to generate nice anchor IDs for at least those non-topic elements that you link to in your own content.</p>
+
+        <p class="p">But, you might have things what would be useful to link to that you don't link to yourself, such as other figures, tables, key steps within procedures, etc.</p>
+
+        <p class="p">However, you can't link to something at all if it doesn't have an ID and generating IDs for those things that might be useful to link to but that don't have IDs is problematic, as discussed at the start of this paper. Thus, you may need to add IDs to those things that should be publicly linkable even if you don't have an immediate need to link to them. Figures, tables, sections, and task steps are obvious candidates for this type of policy.</p>
+
+        <p class="p">Likewise, if you have an author or component content management system that adds IDs to lots of things, many of which you would never want to link to or enable linking to, you don't necessarily want to generate anchor IDs for every element that happens to have an ID, although that can be an easy policy to implement.</p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="topic nested1" id="topic_ih1_yjf_jp">
+    <h2 class="title topictitle2">Generating Deliverable Anchor IDs</h2>
+
+    <div class="body">
+      <p class="p">The implication of using keys for deliverable ID generation should be clear: each navigation topicref's keys become anchor IDs. However, it's not necessarily that simple.</p>
+
+      <p class="p">For this discussion I am using term "navigation key" to mean "a key defined on a navigation topicref"</p>
+
+      <p class="p">For the purpose of discussing deliverables we can divide deliverables into two types: multi-file and monolithic.</p>
+
+      <p class="p">Multi-file deliverables are things like HTML, where there are multiple result files linked together. HTML is the obvious example, but there are also proprietary help systems, Wiki systems, and so on, that do not use HTML as the base data format. In multi-file deliverables there is a useful notion of "file" and "filename" where path to a file is an essential part of its address. In multi-file deliverables there can be a natural correspondence between the source DITA files and the result deliverable files (but there doesn't have to be any necessary correspondence and in any case such correspondence cannot be guaranteed in the general case).</p>
+
+      <p class="p">Monolithic deliverables are things like PDF, where the result is a single file and all anchors are within the context of the single result file.</p>
+
+    </div>
+
+    <div class="topic nested2" id="topic_adk_jnf_jp">
+      <h3 class="title topictitle3">Multi-file Deliverable Anchor IDs</h3>
+
+      <div class="body">
+        <p class="p">For multie-file deliverables there are two aspects to ID generation: paths to files and anchor IDs within files.</p>
+
+        <p class="p">When the topic to be addressed becomes a file in the result, then the anchor ID is the path to the file in the result.</p>
+
+        <div class="p">Given the navigation topicref:<pre class="pre codeblock">&lt;topicref keys="chap-01"
+  keyref="topic-01"
+/&gt;</pre>
+the result HTML file could be named "chap-01.html". </div>
+
+        <p class="p">Because the name reflects a key, which must be unique within the publication, we know the filename must be unique for all HTML files whose filenames reflect a key. Likewise, the filename will be persistent in future versions of the deliverable as long as the key "chap-01" is maintained. The deliverable generation could have rules for constructing a directory structure, such as making each level in navigation structure a directory in the output or organizing result files by topic type or making each key scope a new directory. The important thing is that the rule has to be consistent and repeatable, so that the directory structure is consistent over time for consistent map structures.</p>
+
+        <p class="p">However, navigation topicrefs do not necessarily always result in separate HTML files. </p>
+
+        <div class="p">You can use the @chunk attribute to combine multiple topics into a single result file:<pre class="pre codeblock">&lt;topicref keys="chap-01"
+  keyref="topic-01"
+  chunk="to-content select-branch"
+&gt;
+  &lt;topicref keys="chap-01-ss-01"
+    keyref="topic-1234"
+  /&gt;
+  &lt;topicref keys="chap-01-ss-02"
+    keyref="topic-1234"
+  /&gt;
+&lt;/topicref&gt;</pre>
+</div>
+
+        <p class="p">Here the @chunk value will result in a single HTML file with the topics "chap-01-ss-01" and "chap-01-ss-02" as HTML markup within that file.</p>
+
+        <p class="p">Thus, for those topics the processor will need to generate HTML anchors or elements with the IDs "chap-01-ss-01" and "chap-01-ss-02".</p>
+
+        <p class="p">Because HTML files establish new ID scopes it is sufficient to ensure that generated IDs are unique within a given HTML file. This means, for example, that you could take advantage of key scopes when there is an alignment between key scopes and the HTML file structure such that you can generate IDs reflecting unqualified keys (because the HTML file or directory structure itself is sufficient to reflect the scope qualification).</p>
+
+      </div>
+
+    </div>
+
+    <div class="topic nested2" id="topic_xcn_h4f_jp">
+      <h3 class="title topictitle3">Monolithic Deliverable Anchor IDs</h3>
+
+      <div class="body">
+        <p class="p">Monolithic deliverables present the challenge that they typically provide a single name space for anchor IDs. In the case of PDF there is just global named destinations.</p>
+
+        <p class="p"/>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</body>
 </html>
