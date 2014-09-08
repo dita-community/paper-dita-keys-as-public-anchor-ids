@@ -2,6 +2,13 @@
 <!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
 <topic id="topic_f1y_j52_jp">
   <title>DITA Map Design: Using Keys to Produce Reliable Anchor IDs for Deliverables</title>
+  <prolog>
+    <author>W. Eliot Kimber</author>
+    <copyright>
+      <copyryear year="2014"/>
+      <copyrholder>W. Eliot Kimber</copyrholder>
+    </copyright>
+  </prolog>
   <body>
     <p>When you generate online deliverables from DITA content the users of those deliverables may need to create links to things in your deliverables. For example, they may want to create links to the HTML page for a specific topic or link to a named destination within a PDF that is served online. They will do this by creating links to specific HTML pages, @id values within HTML pages, PDF named destinations, or whatever form of "anchor" the online deliverable provides. </p>
     <p>When they do this, they have a reasonable expectation that their links will continue to work as the deliverables are revised and republished.</p>
@@ -182,7 +189,12 @@
       <title>Monolithic Deliverable Anchor IDs</title>
       <body>
         <p>Monolithic deliverables present the challenge that they typically provide a single name space for anchor IDs. In the case of PDF there is just global named destinations.</p>
-        <p/>
+        <p>For topics, the fully-qualified keys can be used directly as named destinations as they are guaranteed unique and should satisfy the syntax requirements of PDF named destinations.</p>
+        <p>For elements within topics the topic's key must be combined with the element's ID to form a single destination value. This value should be easy to use within URLs so that it can be used without the need for escaping.</p>
+        <p>This means that you must choose some way to separate the topic key name from the element ID that will be likely to no occur within keys or IDs (so you don't result in accidental collisions) and that doesn't need to be escaped, such as "._." or ".-." or similar.</p>
+        <p>Given this convention you can then generate named destinations, or their equivalent, in the PDF, enabling reliable addressing of things within the PDF.</p>
+        <p>All the major XSL-FO engines provide extensions for creating PDF named destinations.</p>
+        <p>Given a named destination you can link to it using fragment identifiers of the form "#nameddest={<i>destination name}</i>", e.g.: <codeph>See &lt;xref href="http://example.com/publications/pub1/pub1.pdf#nameddest=chap-01">Chapter 1&lt;/xref></codeph>.</p>
       </body>
     </topic>
   </topic>
