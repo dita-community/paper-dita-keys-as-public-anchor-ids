@@ -319,7 +319,17 @@ the result HTML file could be named "chap-01.html". </div>
       <div class="body">
         <p class="p">Monolithic deliverables present the challenge that they typically provide a single name space for anchor IDs. In the case of PDF there is just global named destinations.</p>
 
-        <p class="p"/>
+        <p class="p">For topics, the fully-qualified keys can be used directly as named destinations as they are guaranteed unique and should satisfy the syntax requirements of PDF named destinations.</p>
+
+        <p class="p">For elements within topics the topic's key must be combined with the element's ID to form a single destination value. This value should be easy to use within URLs so that it can be used without the need for escaping.</p>
+
+        <p class="p">This means that you must choose some way to separate the topic key name from the element ID that will be likely to no occur within keys or IDs (so you don't result in accidental collisions) and that doesn't need to be escaped, such as "._." or ".-." or similar.</p>
+
+        <p class="p">Given this convention you can then generate named destinations, or their equivalent, in the PDF, enabling reliable addressing of things within the PDF.</p>
+
+        <p class="p">All the major XSL-FO engines provide extensions for creating PDF named destinations.</p>
+
+        <p class="p">Given a named destination you can link to it using fragment identifiers of the form "#nameddest={<em class="ph i">destination name}</em>", e.g.: <samp class="ph codeph">See &lt;xref href="http://example.com/publications/pub1/pub1.pdf#nameddest=chap-01"&gt;Chapter 1&lt;/xref&gt;</samp>.</p>
 
       </div>
 
